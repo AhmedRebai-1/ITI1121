@@ -17,21 +17,25 @@ public class TriangularDistribution {
 
 	/**
 	 * Constructor for TriangularDistribution. You need to verify that the following
-	 * condition holds: a < c AND c < b
+	 * condition holds: a >= 0 AND a < c AND c < b
 	 * 
 	 * @param a is the lower limit of the distribution
 	 * @param c is the mode
 	 * @param b is the upper limit of the distribution
 	 */
 	public TriangularDistribution(int a, int c, int b) {
-	
-		// WRITE YOUR CODE HERE!
-		if (a < c && c < b){
+		if (a < c && c < b) {
 			this.a = a;
-			this.b = b;
 			this.c = c;
+			this.b = b;
+		} else {
+			System.out.println(
+					"Triangular Distribution: The parameters of the consturctor are invalid. Assigning default parameters (a = 0, c = 50, b = 100)");
+			// Default to a = 0, c = 50, b = 100;
+			this.a = a;
+			this.c = c;
+			this.b = b;
 		}
-
 	}
 
 	/**
@@ -40,30 +44,16 @@ public class TriangularDistribution {
 	 */
 	public Rational pdf(int x) {
 
-		// WRITE YOUR CODE HERE!
-		Rational value = new Rational(1,1);
-		if (x<this.a || x>this.b) {
-			value = new Rational(0,1);
+		if (x < a)
+			return Rational.zero;
 
-		}
-		if (x<this.c){
-			int numerator = 2*(x-this.a);
-			int denumerator = (this.b-this.a)*(this.c-this.a);
-			value = new Rational(numerator, denumerator);
-			return value;
-		}
-		if (x==this.c) {
-			int numerator = 2;
-			int denumerator = (this.b-this.a);
-			value = new Rational(numerator, denumerator);
-			return value;
-		}
-		else {
-			int numerator = 2*(this.b-x);
-			int denumerator = (this.b-this.a)*(this.b-this.c);
-			value = new Rational(numerator, denumerator);
-			return value;
-		}
+		if (x >= a && x <= c)
+			return new Rational(2 * (x - a), (b - a) * (c - a));
+
+		if (x > c && x <= b)
+			return new Rational(2 * (b - x), (b - a) * (b - c));
+
+		return Rational.zero;
 	}
 
 	/**
