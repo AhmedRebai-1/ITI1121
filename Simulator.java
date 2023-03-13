@@ -23,14 +23,12 @@ public class Simulator {
 
 	/**
 	 * The probability that a car would arrive at any given (simulated) second
-	 * This probability is calculated in the constructor based on the perHourArrivalRate
-	 * passed to the constructor.
 	 */
 	private Rational probabilityOfArrivalPerSec;
 
 	/**
 	 * The simulation clock. Initially the clock should be set to zero; the clock
-	 * should then be incremented by one unit after each (simulated) second.
+	 * should then be incremented by one unit after each (simulated) second
 	 */
 	private int clock;
 
@@ -58,103 +56,91 @@ public class Simulator {
 	private Queue<Spot> outgoingQueue;
 
 	/**
-	 * @param lot                 is the parking lot to be simulated
-	 * @param perHourArrivalRate  is the HOURLY rate at which cars show up in front of the lot
-	 * @param steps               is the total number of steps for simulation
+	 * @param lot   is the parking lot to be simulated
+	 * @param steps is the total number of steps for simulation
 	 */
 	public Simulator(ParkingLot lot, int perHourArrivalRate, int steps) {
 
 		this.lot = lot;
 
+		this.probabilityOfArrivalPerSec = new Rational(perHourArrivalRate, 3600);
+
 		this.steps = steps;
 
 		this.clock = 0;
-		
-		// YOUR CODE HERE! YOU SIMPLY NEED TO COMPLETE THE LINES BELOW:
 
-		// What should the two questions marks be filled with? 
-		// Hint: you are being given a perHourArrivalRate. 
-		// All you need to do is to convert this hourly rate into 
-		// a per-second rate (probability).
-		
-		this.probabilityOfArrivalPerSec = new Rational(perHourArrivalRate, 3600);
+		incomingQueue = new LinkedQueue<Spot>();
+		outgoingQueue = new LinkedQueue<Spot>();
 
-		
-		// Finally, you need to initialize the incoming and outgoing queues
+	}
 
-		incomingQueue = new LinkedQueue <Spot>();
-		outgoingQueue = new LinkedQueue <Spot>();
+	private void processArrival() {
+		boolean shouldAddNewCar = RandomGenerator.eventOccurred(probabilityOfArrivalPerSec);
 
+		if (shouldAddNewCar)
+			incomingQueue.enqueue(new Spot(RandomGenerator.generateRandomCar(), clock));
+
+	}
+
+	private void processDeparture() {
+		for (int i = 0; i < lot.getNumRows(); i++)
+			for (int j = 0; j < lot.getNumSpotsPerRow(); j++) {
+				Spot spot = lot.getSpotAt(i, j);
+
+				if (spot != null) {
+					int duration = clock - spot.getTimestamp();
+
+					boolean willLeave = false;
+
+					if (duration > 8 * 3600) {
+						willLeave = true;
+
+					} else {
+						willLeave = RandomGenerator.eventOccurred(departurePDF.pdf(duration));
+					}
+
+					if (willLeave) {
+						// System.out.println("DEPARTURE AFTER " + duration/3600f + " hours.");
+						Spot toExit = lot.remove(i, j);
+
+						toExit.setTimestamp(clock);
+
+						outgoingQueue.enqueue(spot);
+					}
+				}
+			}
 	}
 
 	/**
 	 * Simulate the parking lot for the number of steps specified by the steps
-	 * instance variable.
-	 * In this method, you will implement the algorithm shown in Figure 3 of the A2 description.
+	 * instance variable
 	 */
 	public void simulate() {
-	
-		// Local variables can be defined here.
 
-		this.clock = 0;
-		// Note that for the specific purposes of A2, clock could have been 
-		// defined as a local variable too.
-		
-                boolean check = true;    // determine whether the car dequeued from the incomingQueue has been parked.
-		Spot in = null;      
-		// these local variables used from line 141 to 153
-		
+		Spot incomingToProcess = null;
+
 		while (clock < steps) {
-	
-			// WRITE YOUR CODE HERE!
-			boolean carArrives = RandomGenerator.eventOccurred(probabilityOfArrivalPerSec); 
-			if (carArrives){
-				Car car = RandomGenerator.generateRandomCar();
-				Spot s = new Spot(car, clock);
-				incomingQueue.enqueue(s);	
-			}
-			
-			
-			for (int i = 0; i < lot.getNumRows(); i++){
-				for (int j = 0; j < lot.getNumSpotsPerRow(); j++){
-					if (lot.getSpotAt(i,j) != null){
-						int parkDuration = clock - lot.getSpotAt(i,j).getTimestamp();   // calculate the duration that c has been parked
-					
-					    if (parkDuration == MAX_PARKING_DURATION){
-							Spot s = lot.remove(i,j);    // remove the car from the lot
-							outgoingQueue.enqueue(s);    // place it in the outgoing queue  
-						    
-						    
-					    }else{
-						    boolean carDeparts = RandomGenerator.eventOccurred(departurePDF.pdf(parkDuration));
-						    if(carDeparts){
-								Spot s = lot.remove(i,j);
-							    outgoingQueue.enqueue(s);
-							    
-						    }
-					    }
-				    }
+			processArrival();
+
+			processDeparture();
+
+			if (incomingToProcess != null) {
+				boolean isProcessed = lot.attemptParking(incomingToProcess.getCar(), clock);
+
+				if (isProcessed) {
+					System.out.println(incomingToProcess.getCar() + " ENTERED at timestep " + clock
+							+ "; occupancy is at " + lot.getTotalOccupancy());
+					incomingToProcess = null;
 				}
+
+			} else if (!incomingQueue.isEmpty()) {
+				incomingToProcess = incomingQueue.dequeue();
 			}
-			
-			
-			if (!incomingQueue.isEmpty() && check){    
-			    in = incomingQueue.dequeue();
-				check = lot.attemptParking(in.getCar(), in.getTimestamp());  // attempt to park the car dequeued
-				if (check){
-					System.out.println(in.getCar() + " ENTERED at timestep " + clock + "; occupancy is a " + lot.getTotalOccupancy());
-				}
-			}else if (!check){
-				check = lot.attemptParking(in.getCar(), in.getTimestamp());  // checks whether an appropriate spot has been freed since the last iteration
-				if (check){
-					System.out.println(in.getCar() + " ENTERED at timestep " + clock + "; occupancy is a " + lot.getTotalOccupancy());
-				}
-				
-			}
-			
-			if(!outgoingQueue.isEmpty()){
-				Spot out = outgoingQueue.dequeue();
-				System.out.println(out.getCar() + " EXITED at timestep " + clock + "; occupancy is a " + lot.getTotalOccupancy());
+
+			if (!outgoingQueue.isEmpty()) {
+				Spot leaving = outgoingQueue.dequeue();
+				System.out.println(leaving.getCar() + " EXITED at timestep " + clock + "; occupancy is at "
+						+ lot.getTotalOccupancy());
 			}
 
 			clock++;
@@ -209,9 +195,6 @@ public class Simulator {
 
 		int count = 0;
 
-		// The Queue interface does not provide a method to get the size of the queue.
-		// We thus have to dequeue all the elements to count how many elements the queue has!
-		
 		while (!sim.incomingQueue.isEmpty()) {
 			sim.incomingQueue.dequeue();
 			count++;
