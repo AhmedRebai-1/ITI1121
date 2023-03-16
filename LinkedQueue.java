@@ -2,10 +2,10 @@
  * @author Marcel Turcotte, Guy-Vincent Jourdan and Mehrdad Sabetzadeh
  *         (University of Ottawa)
  * 
- *         The implementation of this class is complete. You do *not* need to
- *         change this class in this assignment.
  * 
  */
+
+// TODO:
 
 public class LinkedQueue<D> implements Queue<D> {
 
@@ -63,7 +63,32 @@ public class LinkedQueue<D> implements Queue<D> {
 		} else {
 			front = front.next;
 		}
+
 		return returnedValue;
+	}
+
+	public D peek() {
+
+		if (isEmpty()) {
+			throw new IllegalStateException("peek method called on an empty queue");
+		}
+
+		D returnedValue;
+		returnedValue = front.value;
+
+		return returnedValue;
+
+	}
+
+	public int size() {
+		int size = 0;
+    	Elem<D> current = front;
+    	while (current != null) {
+        	size++;
+        	current = current.next;
+    	}
+	    return size;
+		 
 	}
 
 	public String toString() {
