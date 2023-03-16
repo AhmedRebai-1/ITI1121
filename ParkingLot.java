@@ -1,101 +1,83 @@
-import java.io.File;
-import java.util.Scanner;
-
 /**
  * @author Mehrdad Sabetzadeh, University of Ottawa
  */
 public class ParkingLot {
+
+	// IMPORTANT: You are *discouraged* from defining any new instance variables in
+	// ParkingLot. You are expected to provide a list-based implementation of
+	// ParkingLot. Defining new instance variables can take you away from this
+	// implementation goal and thus result in the loss of marks.
 	/**
-	 * The delimiter that separates values
+	 * List for storing occupancy information in the lot
 	 */
-	private static final String SEPARATOR = ",";
+	private List<Spot> occupancy;
 
 	/**
-	 * Instance variable for storing the number of rows in a parking lot
+	 * The maximum number of cars that the lot can accommodate
 	 */
-	private int numRows;
+	private int capacity;
 
 	/**
-	 * Instance variable for storing the number of spaces per row in a parking lot
-	 */
-	private int numSpotsPerRow;
-
-	/**
-	 * Instance variable (two-dimensional array) for storing the lot design
-	 */
-	private CarType[][] lotDesign;
-
-	/**
-	 * Instance variable (two-dimensional array) for storing occupancy information
-	 * for the spots in the lot
-	 */
-	private Spot[][] occupancy;
-
-	/**
-	 * Constructs a parking lot by loading a file
+	 * Constructs a parking lot with a given (maximum) capacity
 	 * 
-	 * @param strFilename is the name of the file
+	 * @param capacity is the (maximum) capacity of the lot
 	 */
-	public ParkingLot(String strFilename) throws Exception {
+	public ParkingLot(int capacity) {
 
-		if (strFilename == null) {
-			System.out.println("File name cannot be null.");
-			return;
+		if (capacity < 0) {
+		
+			// Hint: throw a suitable exception here.
+			throw new IllegalArgumentException();
+		
 		}
 
-		calculateLotDimensions(strFilename);
-
-		lotDesign = new CarType[numRows][numSpotsPerRow];
-		occupancy = new Spot[numRows][numSpotsPerRow];
-
-		populateDesignFromFile(strFilename);
-	}
-
-	public int getNumRows() {
-		return numRows;
-	}
-
-	public int getNumSpotsPerRow() {
-		return numSpotsPerRow;
+		this.capacity = capacity;
+		this.occupancy = new SinglyLinkedList<Spot>();
 	}
 
 	/**
-	 * Parks a car (c) at a give location (i, j) within the parking lot.
+	 * Parks a car (c) in the parking lot.
 	 * 
-	 * @param i         is the parking row index
-	 * @param j         is the index of the spot within row i
 	 * @param c         is the car to be parked
 	 * @param timestamp is the (simulated) time when the car gets parked in the lot
 	 */
-	public void park(int i, int j, Car c, int timestamp) {
-		if (!canParkAt(i, j, c)) {
-			System.out.println("Car " + c + " cannot be parked at (" + i + "," + j + ")");
-			return;
+	public void park(Car c, int timestamp) {
+		
+		if (attemptParking(c, timestamp)) {
+			Spot spot = Spot(c,timestamp);
+			occupancy.add(spot);
 		}
-
-		occupancy[i][j] = new Spot(c, timestamp);
+	
 	}
 
 	/**
-	 * Removes the car parked at a given location (i, j) in the parking lot
+	 * Removes the car (spot) parked at list index i in the parking lot
 	 * 
-	 * @param i is the parking row index
-	 * @param j is the index of the spot within row i
-	 * @return the spot removed; the method returns null when either i or j are out
-	 *         of range, or when there is no car parked at (i, j)
+	 * @param i is the index of the car to be removed
+	 * @return the car (spot) that has been removed
 	 */
-	public Spot remove(int i, int j) {
+	public Spot remove(int i) {
+		
+		Spot spot = getSpotAt(i);
+		occupancy.remove(i);
+		return spot;
+	
+	}
 
-		if (i >= numRows || j >= numSpotsPerRow) {
-			System.out.println("Out of range index error.");
-			return null;
+	public boolean attemptParking(Car c, int timestamp) {
+	
+		if (!(occupancy.size()<capacity)){
+			return false;
 		}
+		return true;
+			
+	}
 
-		Spot s = occupancy[i][j];
-		occupancy[i][j] = null;
-
-		return s;
-
+	/**
+	 * @return the capacity of the parking lot
+	 */
+	public int getCapacity() {
+		return capacity;
 	}
 
 	/**
@@ -105,163 +87,32 @@ public class ParkingLot {
 	 * @param j is the index of the spot within row i
 	 * @return the spot instance at a given position (i, j)
 	 */
-	public Spot getSpotAt(int i, int j) {
-		if (i >= numRows || j >= numSpotsPerRow) {
-			System.out.println("Out of range index error.");
-			return null;
-		}
+	public Spot getSpotAt(int i) {
 
-		return occupancy[i][j];
+		Spot spot = occupancy.get(i);
+		return spot;
+
 	}
 
 	/**
-	 * Checks whether a car (which has a certain type) is allowed to park at
-	 * location (i, j)
-	 * 
-	 * @param i is the parking row index
-	 * @param j is the index of the spot within row i
-	 * @return true if car c can park at (i, j) and false otherwise
+	 * @return the total number of cars parked in the lot
 	 */
-	public boolean canParkAt(int i, int j, Car c) {
+	public int getOccupancy() {
 
-		if (i >= numRows || j >= numSpotsPerRow) {
-			return false;
-		}
-
-		if (occupancy[i][j] != null) {
-			return false;
-		}
-
-		CarType carType = c.getType();
-		CarType spotType = lotDesign[i][j];
-
-		if (carType == CarType.ELECTRIC) {
-			return (spotType == CarType.ELECTRIC) || (spotType == CarType.SMALL) || (spotType == CarType.REGULAR)
-					|| (spotType == CarType.LARGE);
-
-		} else if (carType == CarType.SMALL) {
-			return (spotType == CarType.SMALL) || (spotType == CarType.REGULAR) || (spotType == CarType.LARGE);
-
-		} else if (carType == CarType.REGULAR) {
-			return (spotType == CarType.REGULAR) || (spotType == CarType.LARGE);
-		} else if (carType == CarType.LARGE) {
-			return (spotType == CarType.LARGE);
-		}
-
-		return false;
-	}
-
-	public boolean attemptParking(Car c, int timestamp) {
-		for (int i = 0; i < numRows; i++)
-			for (int j = 0; j < numSpotsPerRow; j++) {
-				if (canParkAt(i, j, c)) {
-					park(i, j, c, timestamp);
-					return true;
-				}
-			}
-
-		return false;
+		return occupancy.size();
+		
 	}
 
 	/**
-	 * @return the total capacity of the parking lot excluding spots that cannot be
-	 *         used for parking (i.e., excluding spots that point to CarType.NA)
-	 */
-	public int getTotalCapacity() {
-		int count = 0;
-
-		for (int i = 0; i < numRows; i++)
-			for (int j = 0; j < numSpotsPerRow; j++)
-				if (lotDesign[i][j] != CarType.NA)
-					count++;
-
-		return count;
-	}
-
-	/**
-	 * @return the total occupancy of the parking lot
-	 */
-	public int getTotalOccupancy() {
-		int count = 0;
-
-		for (int i = 0; i < numRows; i++)
-			for (int j = 0; j < numSpotsPerRow; j++)
-				if (occupancy[i][j] != null)
-					count++;
-
-		return count;
-	}
-
-	private void calculateLotDimensions(String strFilename) throws Exception {
-
-		Scanner scanner = new Scanner(new File(strFilename));
-
-		while (scanner.hasNext()) {
-			String str = scanner.nextLine().trim();
-
-			if (str.isEmpty()) {
-				// Do nothing
-			} else {
-				numRows++;
-				String[] tokens = str.split(SEPARATOR);
-				numSpotsPerRow = Integer.max(tokens.length, numSpotsPerRow);
-			}
-		}
-
-		scanner.close();
-	}
-
-	private void populateDesignFromFile(String strFilename) throws Exception {
-
-		Scanner scanner = new Scanner(new File(strFilename));
-
-		int rowNumber = 0;
-
-		// while loop for reading the lot design
-		while (scanner.hasNext()) {
-			String str = scanner.nextLine().trim();
-
-			if (str.isEmpty()) {
-				// Do nothing
-			} else {
-				String[] tokens = str.split(",");
-				for (int i = 0; i < tokens.length; i++)
-					lotDesign[rowNumber][i] = Util.getCarTypeByLabel(tokens[i].trim());
-				rowNumber++;
-			}
-		}
-
-		scanner.close();
-	}
-
-	/**
-	 * @return String containing the parking lot information
+	 * @return String representation of the parking lot
 	 */
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("==== Lot Design ====").append(System.lineSeparator());
 
-		for (int i = 0; i < lotDesign.length; i++) {
-			for (int j = 0; j < lotDesign[0].length; j++) {
-				buffer.append((lotDesign[i][j] != null) ? Util.getLabelByCarType(lotDesign[i][j])
-						: Util.getLabelByCarType(CarType.NA));
-				if (j < numSpotsPerRow - 1) {
-					buffer.append(", ");
-				}
-			}
-			buffer.append(System.lineSeparator());
-		}
+		buffer.append("Total capacity: " + this.capacity + System.lineSeparator());
+		buffer.append("Total occupancy: " + this.occupancy.size() + System.lineSeparator());
+		buffer.append("Cars parked in the lot: " + this.occupancy + System.lineSeparator());
 
-		buffer.append(System.lineSeparator()).append("==== Parking Occupancy ====").append(System.lineSeparator());
-
-		for (int i = 0; i < occupancy.length; i++) {
-			for (int j = 0; j < occupancy[0].length; j++) {
-				buffer.append(
-						"(" + i + ", " + j + "): " + ((occupancy[i][j] != null) ? occupancy[i][j] : "Unoccupied"));
-				buffer.append(System.lineSeparator());
-			}
-
-		}
 		return buffer.toString();
 	}
 }
