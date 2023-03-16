@@ -44,7 +44,7 @@ public class ParkingLot {
 	public void park(Car c, int timestamp) {
 		
 		if (attemptParking(c, timestamp)) {
-			Spot spot = Spot(c,timestamp);
+			Spot spot = new Spot(c,timestamp);
 			occupancy.add(spot);
 		}
 	
