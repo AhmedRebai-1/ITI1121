@@ -2,7 +2,8 @@
  * @author Mehrdad Sabetzadeh, University of Ottawa
  *
  */
-public class Simulator {
+
+ public class Simulator {
 
 	/**
 	 * Length of car plate numbers
@@ -84,13 +85,36 @@ public class Simulator {
 
 	}
 
-
 	/**
 	 * Simulate the parking lot for the number of steps specified by the steps
 	 * instance variable
 	 * NOTE: Make sure your implementation of simulate() uses peek() from the Queue interface.
 	 */
 	public void simulate() {
+
+		boolean shouldAddNewCar = RandomGenerator.eventOccurred(probabilityOfArrivalPerSec);
+
+		if (shouldAddNewCar)
+			incomingQueue.enqueue(new Spot(new Car(RandomGenerator.generateRandomString(3)), clock));
+
+		for (int i = 0; i < lot.getOccupancy() ; i++) {
+			Spot spot = lot.getSpotAt(i);
+			if (spot != null) {
+				int duration = clock - spot.getTimestamp();
+				boolean willLeave = false;
+				if (duration > 8 * 3600) {
+					willLeave = true;
+				} else {
+					willLeave = RandomGenerator.eventOccurred(departurePDF.pdf(duration));
+				}
+				if (willLeave) {
+					// System.out.println("DEPARTURE AFTER " + duration/3600f + " hours.");
+					Spot toExit = lot.remove(i);
+					toExit.setTimestamp(clock);
+					outgoingQueue.enqueue(spot);
+				}
+			}
+		}
 
 		while (clock < steps) {
 
