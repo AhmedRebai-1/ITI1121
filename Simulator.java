@@ -5,14 +5,24 @@
 public class Simulator {
 
 	/**
+	 * Length of car plate numbers
+	 */
+	public static final int PLATE_NUM_LENGTH = 3;
+
+	/**
+	 * Number of seconds in one hour
+	 */
+	public static final int NUM_SECONDS_IN_1H = 3600;
+
+	/**
 	 * Maximum duration a car can be parked in the lot
 	 */
-	public static final int MAX_PARKING_DURATION = 8 * 3600;
+	public static final int MAX_PARKING_DURATION = 8 * NUM_SECONDS_IN_1H;
 
 	/**
 	 * Total duration of the simulation in (simulated) seconds
 	 */
-	public static final int SIMULATION_DURATION = 24 * 3600;
+	public static final int SIMULATION_DURATION = 24 * NUM_SECONDS_IN_1H;
 
 	/**
 	 * The probability distribution for a car leaving the lot based on the duration
@@ -60,7 +70,7 @@ public class Simulator {
 	 * @param steps is the total number of steps for simulation
 	 */
 	public Simulator(ParkingLot lot, int perHourArrivalRate, int steps) {
-
+	
 		this.lot = lot;
 
 		this.probabilityOfArrivalPerSec = new Rational(perHourArrivalRate, 3600);
@@ -69,137 +79,44 @@ public class Simulator {
 
 		this.clock = 0;
 
-		incomingQueue = new LinkedQueue<Spot>();
-		outgoingQueue = new LinkedQueue<Spot>();
+		this.incomingQueue = new LinkedQueue<Spot>();
+		this.outgoingQueue = new LinkedQueue<Spot>();
 
 	}
 
-	private void processArrival() {
-		boolean shouldAddNewCar = RandomGenerator.eventOccurred(probabilityOfArrivalPerSec);
-
-		if (shouldAddNewCar)
-			incomingQueue.enqueue(new Spot(RandomGenerator.generateRandomCar(), clock));
-
-	}
-
-	private void processDeparture() {
-		for (int i = 0; i < lot.getNumRows(); i++)
-			for (int j = 0; j < lot.getNumSpotsPerRow(); j++) {
-				Spot spot = lot.getSpotAt(i, j);
-
-				if (spot != null) {
-					int duration = clock - spot.getTimestamp();
-
-					boolean willLeave = false;
-
-					if (duration > 8 * 3600) {
-						willLeave = true;
-
-					} else {
-						willLeave = RandomGenerator.eventOccurred(departurePDF.pdf(duration));
-					}
-
-					if (willLeave) {
-						// System.out.println("DEPARTURE AFTER " + duration/3600f + " hours.");
-						Spot toExit = lot.remove(i, j);
-
-						toExit.setTimestamp(clock);
-
-						outgoingQueue.enqueue(spot);
-					}
-				}
-			}
-	}
 
 	/**
 	 * Simulate the parking lot for the number of steps specified by the steps
 	 * instance variable
+	 * NOTE: Make sure your implementation of simulate() uses peek() from the Queue interface.
 	 */
 	public void simulate() {
 
-		Spot incomingToProcess = null;
-
 		while (clock < steps) {
-			processArrival();
 
-			processDeparture();
-
-			if (incomingToProcess != null) {
-				boolean isProcessed = lot.attemptParking(incomingToProcess.getCar(), clock);
-
-				if (isProcessed) {
-					System.out.println(incomingToProcess.getCar() + " ENTERED at timestep " + clock
-							+ "; occupancy is at " + lot.getTotalOccupancy());
-					incomingToProcess = null;
+			if (!incomingQueue.isEmpty()) {
+				Car c = incomingQueue.peek().getCar();
+				int t = incomingQueue.peek().getTimestamp();
+				if (this.lot.attemptParking(c,t)==true) {
+					incomingQueue.dequeue();
+					this.lot.park(c, t);
+					System.out.println(c + " ENTERED at timestep " + t);
 				}
-
-			} else if (!incomingQueue.isEmpty()) {
-				incomingToProcess = incomingQueue.dequeue();
 			}
 
 			if (!outgoingQueue.isEmpty()) {
 				Spot leaving = outgoingQueue.dequeue();
-				System.out.println(leaving.getCar() + " EXITED at timestep " + clock + "; occupancy is at "
-						+ lot.getTotalOccupancy());
+				System.out.println(leaving.getCar() + " EXITED at timestep " + clock);
 			}
 
 			clock++;
+		
 		}
 	}
 
-	/**
-	 * <b>main</b> of the application. The method first reads from the standard
-	 * input the name of the parking-lot design. Next, it simulates the parking lot
-	 * for a number of steps (this number is specified by the steps parameter). At
-	 * the end, the method prints to the standard output information about the
-	 * instance of the ParkingLot just created.
-	 * 
-	 * @param args command lines parameters (not used in the body of the method)
-	 * @throws Exception
-	 */
-
-	public static void main(String args[]) throws Exception {
-
-		StudentInfo.display();
+	public int getIncomingQueueSize() {
+	
+		return(this.incomingQueue.size());
 		
-		if (args.length < 2) {
-			System.out.println("Usage: java Simulator <lot-design filename> <hourly rate of arrival>");
-			System.out.println("Example: java Simulator parking.inf 11");
-			return;
-		}
-
-		if (!args[1].matches("\\d+")) {
-			System.out.println("The hourly rate of arrival should be a positive integer!");
-			return;
-		}
-
-		ParkingLot lot = new ParkingLot(args[0]);
-
-		System.out.println("Total number of parkable spots (capacity): " + lot.getTotalCapacity());
-
-		Simulator sim = new Simulator(lot, Integer.parseInt(args[1]), SIMULATION_DURATION);
-
-		long start, end;
-
-		System.out.println("=== SIMULATION START ===");
-		start = System.currentTimeMillis();
-		sim.simulate();
-		end = System.currentTimeMillis();
-		System.out.println("=== SIMULATION END ===");
-
-		System.out.println();
-
-		System.out.println("Simulation took " + (end - start) + "ms.");
-
-		System.out.println();
-
-		int count = 0;
-
-		while (!sim.incomingQueue.isEmpty()) {
-			sim.incomingQueue.dequeue();
-			count++;
-		}
-
-		System.out.println("Length of car queue at the front at the end of simulation: " + count);
 	}
 }
