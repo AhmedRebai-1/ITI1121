@@ -92,31 +92,31 @@
 	 */
 	public void simulate() {
 
-		boolean shouldAddNewCar = RandomGenerator.eventOccurred(probabilityOfArrivalPerSec);
+		while (clock < steps) {
 
-		if (shouldAddNewCar)
-			incomingQueue.enqueue(new Spot(new Car(RandomGenerator.generateRandomString(3)), clock));
+			boolean shouldAddNewCar = RandomGenerator.eventOccurred(probabilityOfArrivalPerSec);
 
-		for (int i = 0; i < lot.getOccupancy() ; i++) {
-			Spot spot = lot.getSpotAt(i);
-			if (spot != null) {
-				int duration = clock - spot.getTimestamp();
-				boolean willLeave = false;
-				if (duration > 8 * 3600) {
-					willLeave = true;
-				} else {
-					willLeave = RandomGenerator.eventOccurred(departurePDF.pdf(duration));
-				}
-				if (willLeave) {
-					// System.out.println("DEPARTURE AFTER " + duration/3600f + " hours.");
-					Spot toExit = lot.remove(i);
-					toExit.setTimestamp(clock);
-					outgoingQueue.enqueue(spot);
+			if (shouldAddNewCar)
+				incomingQueue.enqueue(new Spot(new Car(RandomGenerator.generateRandomString(3)), clock));
+
+			for (int i = 0; i < lot.getOccupancy() ; i++) {
+				Spot spot = lot.getSpotAt(i);
+				if (spot != null) {
+					int duration = clock - spot.getTimestamp();
+					boolean willLeave = false;
+					if (duration > 8 * 3600) {
+						willLeave = true;
+					} else {
+						willLeave = RandomGenerator.eventOccurred(departurePDF.pdf(duration));
+					}
+					if (willLeave) {
+						// System.out.println("DEPARTURE AFTER " + duration/3600f + " hours.");
+						Spot toExit = lot.remove(i);
+						toExit.setTimestamp(clock);
+						outgoingQueue.enqueue(spot);
+					}
 				}
 			}
-		}
-
-		while (clock < steps) {
 
 			if (!incomingQueue.isEmpty()) {
 				Car c = incomingQueue.peek().getCar();
@@ -124,13 +124,11 @@
 				if (this.lot.attemptParking(c,t)==true) {
 					incomingQueue.dequeue();
 					this.lot.park(c, t);
-					System.out.println(c + " ENTERED at timestep " + t);
 				}
 			}
 
 			if (!outgoingQueue.isEmpty()) {
-				Spot leaving = outgoingQueue.dequeue();
-				System.out.println(leaving.getCar() + " EXITED at timestep " + clock);
+				outgoingQueue.dequeue();
 			}
 
 			clock++;
