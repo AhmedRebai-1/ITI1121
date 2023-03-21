@@ -5,7 +5,6 @@ public class CapacityOptimizer {
 
 	public static int getOptimalNumberOfSpots(int hourlyRate) {
 	
-		// throw new UnsupportedOperationException("This method has not been implemented yet!");
 		int i=0;
 		boolean test=true;
 		while (test) {
@@ -42,17 +41,20 @@ public class CapacityOptimizer {
 		long mainStart = System.currentTimeMillis();
 
 		if (args.length < 1) {
+			// throw new NullPointerException("Usage: java CapacityOptimizer <hourly rate of arrival>\nExample: java CapacityOptimizer 11");
 			System.out.println("Usage: java CapacityOptimizer <hourly rate of arrival>");
 			System.out.println("Example: java CapacityOptimizer 11");
 			return;
 		}
 
 		if (!args[0].matches("\\d+")) {
+			// throw new IllegalArgumentException("The hourly rate of arrival should be a positive integer");
 			System.out.println("The hourly rate of arrival should be a positive integer!");
 			return;
 		}
 
 		int hourlyRate = Integer.parseInt(args[0]);
+		// Should we check if there are some characters ?
 
 		int lotSize = getOptimalNumberOfSpots(hourlyRate);
 
