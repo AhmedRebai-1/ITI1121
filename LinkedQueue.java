@@ -33,7 +33,7 @@ public class LinkedQueue<D> implements Queue<D> {
 	public void enqueue(D newElement) {
 
 		if (newElement == null) {
-			throw new NullPointerException("no null object in my queue !");
+			throw new NullPointerException("No null object in my queue !");
 			// could have been IllegalArgumentException but NPE seems
 			// to be the norm
 		}
@@ -70,7 +70,7 @@ public class LinkedQueue<D> implements Queue<D> {
 	public D peek() {
 
 		if (isEmpty()) {
-			throw new IllegalStateException("peek method called on an empty queue");
+			throw new IllegalStateException("Peek method called on an empty queue");
 		}
 
 		D returnedValue;
