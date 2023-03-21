@@ -29,12 +29,9 @@ public class TriangularDistribution {
 			this.c = c;
 			this.b = b;
 		} else {
-			System.out.println(
-					"Triangular Distribution: The parameters of the consturctor are invalid. Assigning default parameters (a = 0, c = 50, b = 100)");
-			// Default to a = 0, c = 50, b = 100;
-			this.a = a;
-			this.c = c;
-			this.b = b;
+		
+			// Hint: throw an appropriate exception here!
+			// throw new IllegalArgumentException("The first parameter should be smaller than the second parameter and the second parameter sshould be smaller than the third parameter.");
 		}
 	}
 
@@ -54,64 +51,5 @@ public class TriangularDistribution {
 			return new Rational(2 * (b - x), (b - a) * (b - c));
 
 		return Rational.zero;
-	}
-
-	/**
-	 * 
-	 * This method provides two examples to help you test your implementation of
-	 * triangular distribution. The output obtained from running this main method in
-	 * the reference solution is provided to you alongside the starter code for A2.
-	 * 
-	 * @param args command lines parameters (not used in the body of the method)
-	 */
-	public static void main(String args[]) {
-
-		System.out.println("=========== TriangularDistribution(0, 5, 10) =============");
-		TriangularDistribution dist0 = new TriangularDistribution(0, 5, 10);
-		Rational sum0 = new Rational(0, 1);
-
-		for (int i = 0; i <= 10; i++) {
-			Rational p = dist0.pdf(i);
-			sum0 = sum0.plus(p);
-			System.out.println("pdf(" + i + ") = " + dist0.pdf(i));
-		}
-
-		System.out.println();
-
-		System.out.println("Integral (Sum) = " + sum0);
-
-		System.out.println();
-
-		
-		System.out.println("=========== TriangularDistribution(0, 50, 100) =============");
-		TriangularDistribution dist1 = new TriangularDistribution(0, 50, 100);
-		Rational sum1 = new Rational(0, 1);
-
-		for (int i = 0; i <= 100; i++) {
-			Rational p = dist1.pdf(i);
-			sum1 = sum1.plus(p);
-			System.out.println("pdf(" + i + ") = " + dist1.pdf(i));
-		}
-
-		System.out.println();
-		
-		System.out.println("Integral (Sum) = " + sum1);
-
-		System.out.println();
-
-		System.out.println("=========== TriangularDistribution(0, 10, 50) =============");
-		TriangularDistribution dist2 = new TriangularDistribution(0, 10, 50);
-		Rational sum2 = new Rational(0, 1);
-
-		for (int i = 0; i <= 50; i++) {
-			Rational p = dist2.pdf(i);
-			sum2 = sum2.plus(p);
-			System.out.println("pdf(" + i + ") = " + dist2.pdf(i));
-		}
-
-		System.out.println();
-
-		System.out.println("Integral (Sum) = " + sum2);
-
 	}
 }
