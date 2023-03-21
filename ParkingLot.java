@@ -27,7 +27,7 @@ public class ParkingLot {
 		if (capacity < 0) {
 		
 			// Hint: throw a suitable exception here.
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Lot capacity should be positive number");
 		
 		}
 
