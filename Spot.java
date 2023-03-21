@@ -1,7 +1,3 @@
-/**
- * @author Mehrdad Sabetzadeh, University of Ottawa
- *
- */
 public class Spot {
 	private Car car;
 	private int timestamp;
