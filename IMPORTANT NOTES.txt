@@ -1,0 +1,11 @@
+File : CapacityOptimizer.java 
+Line : 57
+Note : // Should we check if there are some characters ?
+
+File : SinglyLinkedList.java 
+Line : 65
+Note : // throw new NullPointerException("Parameter cannot be null.");
+
+File : TriangularSistribution.java 
+Line : 33
+Suggested Exception : // throw new IllegalArgumentException("The first parameter should be smaller than the second parameter and the second parameter sshould be smaller than the third parameter.");
