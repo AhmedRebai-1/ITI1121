@@ -24,11 +24,9 @@ public class ParkingLot {
 	 */
 	public ParkingLot(int capacity) {
 
+		// Checks if the capacity value is positive
 		if (capacity < 0) {
-		
-			// Hint: throw a suitable exception here.
 			throw new IllegalArgumentException("Lot capacity should be positive number");
-		
 		}
 
 		this.capacity = capacity;
@@ -42,17 +40,9 @@ public class ParkingLot {
 	 * @param timestamp is the (simulated) time when the car gets parked in the lot
 	 */
 	public void park(Car c, int timestamp) {
-		
-		//parking full exception : illegalstate
-		// negative timestamp : illegalargument
-		
-		if (occupancy.size() > this.getCapacity()) {
-			throw new IllegalStateException(" Sorry, you cannot park. The parking lot is full.");
-		
-		} 
-			Spot spot = new Spot(c,timestamp);
-			occupancy.add(spot);
-		
+
+		Spot spot = new Spot(c,timestamp);
+		occupancy.add(spot);		
 	
 	}
 
@@ -64,10 +54,12 @@ public class ParkingLot {
 	 */
 	public Spot remove(int i) {
 		
-		//invalid index exception : out of bonds, illegalstate
+		// Invalid index exception : out of bonds, illegalstate
 		if ( i > this.getCapacity() || i < 0 ){
 			throw new IndexOutOfBoundsException( Integer.toString( i ));
 		}
+		
+		// Invalid argument exception : Cannot be null.
 		if(occupancy.get(i) == null){
                         throw new IllegalStateException("The spot is unoccupied!");
 		}
@@ -79,12 +71,17 @@ public class ParkingLot {
 
 	public boolean attemptParking(Car c, int timestamp) {
 	         
-		//negative timestamp exception:  illegalargument
+		// Invalid argument exception : Timestamp should be positive.
 		if(timestamp < 0){
                         throw new IllegalArgumentException("The timestamp should always be positive.");
 		}
 		
-		if (occupancy.size() <= this.getCapacity()){
+		// Cannot park if parking lot is full.
+		if (occupancy.size() == this.getCapacity()) {
+			throw new IllegalStateException(" Sorry, you cannot park. The parking lot is full.");
+		}
+		
+		if (occupancy.size() < this.getCapacity()){
 			park(c, timestamp);
 			return true;
 		}
@@ -112,6 +109,7 @@ public class ParkingLot {
 		if ( i > this.getCapacity() || i < 0 ){
 			throw new IndexOutOfBoundsException( Integer.toString( i ));
 		}
+		// Argument exception: null argument.
 		if(occupancy.get(i) == null){
                         throw new IllegalStateException("The spot is unoccupied!");
 		}
