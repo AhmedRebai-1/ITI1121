@@ -43,6 +43,9 @@ public class ParkingLot {
 	 */
 	public void park(Car c, int timestamp) {
 		
+		//parking full exception : outofbonds
+		// negative timestamp : illegalargument
+		
 		if (attemptParking(c, timestamp)) { // can we replace if with an exception handling?
 			Spot spot = new Spot(c,timestamp);
 			occupancy.add(spot);
@@ -58,14 +61,19 @@ public class ParkingLot {
 	 */
 	public Spot remove(int i) {
 		
+		//invalid index exception : out of bonds
+		
 		Spot spot = occupancy.remove(i); //simplified it
 		return spot;
 	
 	}
 
 	public boolean attemptParking(Car c, int timestamp) {
-	
+	         
+		//negative timestamp exception:  illegalargument
+		
 		if (occupancy.size() <= this.getCapacity()){
+			park(c, timestamp);
 			return true;
 		}
 		return false;
@@ -87,6 +95,8 @@ public class ParkingLot {
 	 * @return the spot instance at a given position (i, j)
 	 */
 	public Spot getSpotAt(int i) {
+		
+		// index exception: outofbonds
 
 		Spot spot = occupancy.get(i);
 		return spot;
