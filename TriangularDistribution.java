@@ -31,7 +31,7 @@ public class TriangularDistribution {
 		} else {
 		
 			// Hint: throw an appropriate exception here!
-			// throw new IllegalArgumentException("The first parameter should be smaller than the second parameter and the second parameter sshould be smaller than the third parameter.");
+		        throw new IllegalArgumentException("The first parameter should be smaller than the second parameter and the second parameter sshould be smaller than the third parameter.");
 		}
 	}
 
