@@ -138,6 +138,9 @@
 	}
 
 	public int getIncomingQueueSize() {
+		if(this.incomingQueue == null){
+			throw new NullPointerException();
+		}
 	
 		return(this.incomingQueue.size());
 		
