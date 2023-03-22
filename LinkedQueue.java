@@ -5,8 +5,6 @@
  * 
  */
 
-// TODO:
-
 public class LinkedQueue<D> implements Queue<D> {
 
 	private static class Elem<T> {
