@@ -96,21 +96,25 @@
 
 			boolean shouldAddNewCar = RandomGenerator.eventOccurred(probabilityOfArrivalPerSec);
 
+			// Incoming cars
 			if (shouldAddNewCar)
 				incomingQueue.enqueue(new Spot(new Car(RandomGenerator.generateRandomString(3)), clock));
 
+			// Outgoing cars
 			for (int i = 0; i < lot.getOccupancy() ; i++) {
 				Spot spot = lot.getSpotAt(i);
 				if (spot != null) {
 					int duration = clock - spot.getTimestamp();
 					boolean willLeave = false;
+					// Cars reached max duration should leave the parking lot.
 					if (duration > MAX_PARKING_DURATION) {
 						willLeave = true;
-					} else {
+					}
+					// Probability of cars wanting to leave the parking lot.
+					else {
 						willLeave = RandomGenerator.eventOccurred(departurePDF.pdf(duration));
 					}
 					if (willLeave) {
-						// System.out.println("DEPARTURE AFTER " + duration/3600f + " hours.");
 						Spot toExit = lot.remove(i);
 						toExit.setTimestamp(clock);
 						outgoingQueue.enqueue(spot);
@@ -122,9 +126,11 @@
 				Car c = incomingQueue.peek().getCar();
 				int t = incomingQueue.peek().getTimestamp();
 				if (this.lot.attemptParking(c,t)) {
+					/**
+					 * attemptParking(c,t) parks the car given in the argument before returning true.
+					 * Otherwise, it returns false without parking the given car.
+					 */
 					incomingQueue.dequeue();
-					// this.lot.park(c, t); (modified the method "attemptParking" in ParkingLot.java
-					// so that it parks the car given in the argument whenever before returning true; as in A2)
 				}
 			}
 
