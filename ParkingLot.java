@@ -46,7 +46,7 @@ public class ParkingLot {
 		//parking full exception : illegalstate
 		// negative timestamp : illegalargument
 		
-		if (occupancy.size() == this.getCapacity()) {
+		if (occupancy.size() > this.getCapacity()) {
 			throw new IllegalStateException(" Sorry, you cannot park. The parking lot is full.");
 		
 		} 
@@ -65,7 +65,7 @@ public class ParkingLot {
 	public Spot remove(int i) {
 		
 		//invalid index exception : out of bonds, illegalstate
-		if ( i >= this.getCapacity() || i < 0 ){
+		if ( i > this.getCapacity() || i < 0 ){
 			throw new IndexOutOfBoundsException( Integer.toString( i ));
 		}
 		if(occupancy.get(i) == null){
@@ -109,7 +109,7 @@ public class ParkingLot {
 	public Spot getSpotAt(int i) {
 		
 		// index exception: outofbonds
-		if ( i >= this.getCapacity() || i < 0 ){
+		if ( i > this.getCapacity() || i < 0 ){
 			throw new IndexOutOfBoundsException( Integer.toString( i ));
 		}
 		if(occupancy.get(i) == null){
