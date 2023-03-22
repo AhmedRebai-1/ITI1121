@@ -43,7 +43,7 @@ public class ParkingLot {
 	 */
 	public void park(Car c, int timestamp) {
 		
-		if (attemptParking(c, timestamp)) {
+		if (attemptParking(c, timestamp)) { // can we replace if with an exception handling?
 			Spot spot = new Spot(c,timestamp);
 			occupancy.add(spot);
 		}
@@ -58,19 +58,18 @@ public class ParkingLot {
 	 */
 	public Spot remove(int i) {
 		
-		Spot spot = getSpotAt(i);
-		occupancy.remove(i);
+		Spot spot = occupancy.remove(i); //simplified it
 		return spot;
 	
 	}
 
 	public boolean attemptParking(Car c, int timestamp) {
 	
-		if (!(occupancy.size()<capacity)){
-			return false;
+		if (occupancy.size() <= this.getCapacity()){
+			return true;
 		}
-		return true;
-			
+		return false;
+	        
 	}
 
 	/**
