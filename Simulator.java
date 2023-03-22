@@ -104,7 +104,7 @@
 				if (spot != null) {
 					int duration = clock - spot.getTimestamp();
 					boolean willLeave = false;
-					if (duration > 8 * 3600) {
+					if (duration > MAX_PARKING_DURATION) {
 						willLeave = true;
 					} else {
 						willLeave = RandomGenerator.eventOccurred(departurePDF.pdf(duration));
@@ -121,9 +121,10 @@
 			if (!incomingQueue.isEmpty()) {
 				Car c = incomingQueue.peek().getCar();
 				int t = incomingQueue.peek().getTimestamp();
-				if (this.lot.attemptParking(c,t)==true) {
+				if (this.lot.attemptParking(c,t)) {
 					incomingQueue.dequeue();
-					this.lot.park(c, t);
+					// this.lot.park(c, t); (modified the method "attemptParking" in ParkingLot.java
+					// so that it parks the car given in the argument whenever before returning true; as in A2)
 				}
 			}
 
