@@ -46,10 +46,13 @@ public class ParkingLot {
 		//parking full exception : illegalstate
 		// negative timestamp : illegalargument
 		
-		if (attemptParking(c, timestamp)) { // can we replace if with an exception handling?
+		if (occupancy.size() == this.getCapacity()) {
+			throw new IllegalStateException(" Sorry, you cannot park. The parking lot is full.");
+		
+		} 
 			Spot spot = new Spot(c,timestamp);
 			occupancy.add(spot);
-		}
+		
 	
 	}
 
@@ -62,6 +65,12 @@ public class ParkingLot {
 	public Spot remove(int i) {
 		
 		//invalid index exception : out of bonds, illegalstate
+		if ( i >= this.getCapacity() || i < 0 ){
+			throw new IndexOutOfBoundsException( Integer.toString( i ));
+		}
+		if(occupancy.get(i) == null){
+                        throw new IllegalStateException("The spot is unoccupied!");
+		}
 		
 		Spot spot = occupancy.remove(i); //simplified it
 		return spot;
@@ -71,6 +80,9 @@ public class ParkingLot {
 	public boolean attemptParking(Car c, int timestamp) {
 	         
 		//negative timestamp exception:  illegalargument
+		if(timestamp < 0){
+                        throw new IllegalArgumentException("The timestamp should always be positive.");
+		}
 		
 		if (occupancy.size() <= this.getCapacity()){
 			park(c, timestamp);
@@ -97,6 +109,12 @@ public class ParkingLot {
 	public Spot getSpotAt(int i) {
 		
 		// index exception: outofbonds
+		if ( i >= this.getCapacity() || i < 0 ){
+			throw new IndexOutOfBoundsException( Integer.toString( i ));
+		}
+		if(occupancy.get(i) == null){
+                        throw new IllegalStateException("The spot is unoccupied!");
+		}
 
 		Spot spot = occupancy.get(i);
 		return spot;
