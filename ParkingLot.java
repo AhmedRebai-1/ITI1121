@@ -43,7 +43,7 @@ public class ParkingLot {
 	 */
 	public void park(Car c, int timestamp) {
 		
-		//parking full exception : outofbonds
+		//parking full exception : illegalstate
 		// negative timestamp : illegalargument
 		
 		if (attemptParking(c, timestamp)) { // can we replace if with an exception handling?
@@ -61,7 +61,7 @@ public class ParkingLot {
 	 */
 	public Spot remove(int i) {
 		
-		//invalid index exception : out of bonds
+		//invalid index exception : out of bonds, illegalstate
 		
 		Spot spot = occupancy.remove(i); //simplified it
 		return spot;
