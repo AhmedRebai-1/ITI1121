@@ -82,12 +82,12 @@ public class LinkedQueue<D> implements Queue<D> {
 
 	public int size() {
 		int size = 0;
-    	Elem<D> current = front;
-    	while (current != null) {
-        	size++;
-        	current = current.next;
-    	}
-	    return size;
+    	        Elem<D> current = front;
+    	        while (current != null) {
+        	        size++;
+        	        current = current.next;
+    	        }
+	        return size;
 		 
 	}
 
